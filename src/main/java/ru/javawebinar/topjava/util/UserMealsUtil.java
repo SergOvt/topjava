@@ -37,7 +37,7 @@ public class UserMealsUtil {
                 o -> o.getDateTime().toLocalDate(), UserMeal::getCalories, (a, b) -> a + b));
 
         return mealList.stream().filter(meal ->
-                meal.getDateTime().toLocalTime().isAfter(startTime) && meal.getDateTime().toLocalTime().isBefore(endTime))
+                TimeUtil.isBetween(meal.getDateTime().toLocalTime(), startTime, endTime))
                 .map(meal -> new UserMealWithExceed(meal.getDateTime(), meal.getDescription(), meal.getCalories(),
                         caloriesPerDayMap.get(meal.getDateTime().toLocalDate()) > caloriesPerDay))
                 .collect(Collectors.toList());
@@ -52,12 +52,10 @@ public class UserMealsUtil {
 
         List<UserMealWithExceed> resultList = new ArrayList<>();
         for (UserMeal meal : mealList) {
-            LocalTime time = meal.getDateTime().toLocalTime();
-            if (time.isAfter(startTime) && time.isBefore(endTime))
+            if (TimeUtil.isBetween(meal.getDateTime().toLocalTime(), startTime, endTime))
                 resultList.add(new UserMealWithExceed(meal.getDateTime(), meal.getDescription(), meal.getCalories(),
                         caloriesPerDayMap.get(meal.getDateTime().toLocalDate()) > caloriesPerDay));
         }
-
         return resultList;
     }
 
