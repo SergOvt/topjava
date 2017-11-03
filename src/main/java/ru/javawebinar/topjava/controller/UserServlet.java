@@ -1,4 +1,4 @@
-package ru.javawebinar.topjava.web;
+package ru.javawebinar.topjava.controller;
 
 import org.slf4j.Logger;
 
