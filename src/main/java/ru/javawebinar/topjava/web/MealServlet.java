@@ -21,14 +21,13 @@ public class MealServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        log.debug("redirect to users");
+        log.debug("redirect to meals");
         request.setAttribute("meals", MealsUtil.getListWithExceeded(mealDao.getAll(), 2000));
         request.getRequestDispatcher("/meals.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        log.debug("Action from meals: ");
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
 
