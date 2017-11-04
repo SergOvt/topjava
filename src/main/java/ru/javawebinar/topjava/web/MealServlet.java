@@ -22,8 +22,7 @@ public class MealServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         log.debug("redirect to meals");
-        request.setAttribute("meals", MealsUtil.getListWithExceeded(mealDao.getAll(), 2000));
-        request.getRequestDispatcher("/meals.jsp").forward(request, response);
+        forwardMeals(request, response);
     }
 
     @Override
@@ -64,6 +63,10 @@ public class MealServlet extends HttpServlet {
                 log.debug("Incorrect data from update form");
             }
         }
+        forwardMeals(request, response);
+    }
+
+    private void forwardMeals (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setAttribute("meals", MealsUtil.getListWithExceeded(mealDao.getAll(), 2000));
         request.getRequestDispatcher("/meals.jsp").forward(request, response);
     }
