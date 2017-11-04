@@ -68,22 +68,17 @@
         <tr>
             <th width=5% height="30px">ID</th>
             <th width=10%>Еда</th>
-            <th width=15%>Дата</th>
-            <th width=10%>Время</th>
+            <th width=25%>Дата</th>
             <th width=10%>Ккал</th>
             <th width=5%>Изменить</th>
             <th width=5%>Удалить</th>
         </tr>
         <c:forEach var="meal" items="${meals}">
-            <c:set var="color" value="color: forestgreen"/>
-            <c:if test="${meal.isExceed()}">
-                <c:set var="color" value="color: darkred"/>
-            </c:if>
+            <c:set var="color" value="${meal.isExceed() ? \"color: darkred\" : \"color: forestgreen\"}"/>
             <tr style="${color}">
                 <td align="center">${meal.getId()}</td>
                 <td align="center">${meal.getDescription()}</td>
-                <td align="center">${meal.getDateTime().toString().substring(0, 10)}</td>
-                <td align="center">${meal.getDateTime().toString().substring(11)}</td>
+                <td align="center">${meal.getDateTime().toString().substring(0, 10)} ${meal.getDateTime().toString().substring(11)}</td>
                 <td align="center">${meal.getCalories()}</td>
                 <form method="post">
                     <input type="hidden" name="action" value="readyUpdate">

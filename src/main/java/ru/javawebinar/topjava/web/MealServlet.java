@@ -1,8 +1,9 @@
-package ru.javawebinar.topjava.controller;
+package ru.javawebinar.topjava.web;
 
 import org.slf4j.*;
 import ru.javawebinar.topjava.dao.MealDao;
 import ru.javawebinar.topjava.dao.MealDaoVirtual;
+import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import javax.servlet.ServletException;
@@ -36,7 +37,7 @@ public class MealServlet extends HttpServlet {
                 int calories = Integer.parseInt(request.getParameter("calories"));
                 LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("dateTime"));
                 String description = request.getParameter("description");
-                mealDao.create(dateTime, description, calories);
+                mealDao.create(new Meal(MealDao.countId.incrementAndGet(), dateTime, description, calories));
             } catch (Exception e) {
                 log.debug("Incorrect data from add form");
             }
@@ -58,11 +59,13 @@ public class MealServlet extends HttpServlet {
                 int calories = Integer.parseInt(request.getParameter("calories"));
                 LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("dateTime"));
                 String description = request.getParameter("description");
-                mealDao.update(id, dateTime, description, calories);
+                Meal meal = new Meal (id, dateTime, description, calories);
+                mealDao.update(meal);
             } catch (Exception e) {
                 log.debug("Incorrect data from update form");
             }
         }
-        doGet(request, response);
+        request.setAttribute("meals", MealsUtil.getListWithExceeded(mealDao.getAll(), 2000));
+        request.getRequestDispatcher("/meals.jsp").forward(request, response);
     }
 }

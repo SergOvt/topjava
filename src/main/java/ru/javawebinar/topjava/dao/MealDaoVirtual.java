@@ -8,28 +8,25 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class MealDaoVirtual implements MealDao {
 
-    private static AtomicInteger countId = new AtomicInteger();
     private final List<Meal> MEALS = new CopyOnWriteArrayList<>();
     private static final Logger log = getLogger(MealDaoVirtual.class);
 
     {
-        create(LocalDateTime.of(2015, Month.MAY, 30, 10, 0), "Завтрак", 500);
-        create(LocalDateTime.of(2015, Month.MAY, 30, 13, 0), "Обед", 1000);
-        create(LocalDateTime.of(2015, Month.MAY, 30, 20, 0), "Ужин", 500);
-        create(LocalDateTime.of(2015, Month.MAY, 31, 10, 0), "Завтрак", 1000);
-        create(LocalDateTime.of(2015, Month.MAY, 31, 13, 0), "Обед", 500);
-        create(LocalDateTime.of(2015, Month.MAY, 31, 20, 0), "Ужин", 510);
+        create(new Meal(countId.incrementAndGet(), LocalDateTime.of(2015, Month.MAY, 30, 10, 0), "Завтрак", 500));
+        create(new Meal(countId.incrementAndGet(), LocalDateTime.of(2015, Month.MAY, 30, 13, 0), "Обед", 1000));
+        create(new Meal(countId.incrementAndGet(), LocalDateTime.of(2015, Month.MAY, 30, 20, 0), "Ужин", 500));
+        create(new Meal(countId.incrementAndGet(), LocalDateTime.of(2015, Month.MAY, 31, 10, 0), "Завтрак", 1000));
+        create(new Meal(countId.incrementAndGet(), LocalDateTime.of(2015, Month.MAY, 31, 13, 0), "Обед", 500));
+        create(new Meal(countId.incrementAndGet(), LocalDateTime.of(2015, Month.MAY, 31, 20, 0), "Ужин", 510));
     }
 
     @Override
-    public void create(LocalDateTime dateTime, String description, int calories) {
-        Meal meal = new Meal (countId.incrementAndGet(),dateTime, description, calories);
+    public void create(Meal meal) {
         MEALS.add(meal);
         log.info("Meal ID " + meal.getId() + " created");
     }
@@ -42,11 +39,9 @@ public class MealDaoVirtual implements MealDao {
     }
 
     @Override
-    public void update(int id, LocalDateTime dateTime, String description, int calories) {
-        Meal meal = get(id);
-        meal.setDateTime(dateTime);
-        meal.setDescription(description);
-        meal.setCalories(calories);
+    public void update(Meal meal) {
+        int id = meal.getId();
+        MEALS.set(getExistedIndex(id), meal);
         log.info("Meal ID " + id + " updated");
     }
 
