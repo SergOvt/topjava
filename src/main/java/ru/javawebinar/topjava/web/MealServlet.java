@@ -30,38 +30,33 @@ public class MealServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
 
-        if ("add".equals(action)) {
-            try {
-                int calories = Integer.parseInt(request.getParameter("calories"));
-                LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("dateTime"));
-                String description = request.getParameter("description");
-                mealDao.create(new Meal(MealDao.countId.incrementAndGet(), dateTime, description, calories));
-            } catch (Exception e) {
-                log.debug("Incorrect data from add form");
-            }
-        }
-
-        if ("delete".equals(action)) {
-                int id = Integer.parseInt(request.getParameter("id"));
-                mealDao.delete(id);
-        }
-
-        if ("readyUpdate".equals(action)) {
-                int id = Integer.parseInt(request.getParameter("id"));
-                request.setAttribute("updatingMeal", mealDao.get(id));
-        }
-
-        if ("update".equals(action)) {
-            try {
-                int id = Integer.parseInt(request.getParameter("id"));
-                int calories = Integer.parseInt(request.getParameter("calories"));
-                LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("dateTime"));
-                String description = request.getParameter("description");
-                Meal meal = new Meal (id, dateTime, description, calories);
-                mealDao.update(meal);
-            } catch (Exception e) {
-                log.debug("Incorrect data from update form");
-            }
+        switch (action) {
+            case "add":
+                try {
+                    int calories = Integer.parseInt(request.getParameter("calories"));
+                    LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("dateTime"));
+                    String description = request.getParameter("description");
+                    mealDao.create(new Meal(MealDao.countId.incrementAndGet(), dateTime, description, calories));
+                } catch (Exception e) {
+                    log.debug("Incorrect data from add form");
+                }
+                break;
+            case "delete":
+                mealDao.delete(getId(request));
+                break;
+            case "readyUpdate":
+                request.setAttribute("updatingMeal", mealDao.get(getId(request)));
+                break;
+            case "update":
+                try {
+                    LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("dateTime"));
+                    String description = request.getParameter("description");
+                    int calories = Integer.parseInt(request.getParameter("calories"));
+                    Meal meal = new Meal (getId(request), dateTime, description, calories);
+                    mealDao.update(meal);
+                } catch (Exception e) {
+                    log.debug("Incorrect data from update form");
+                }
         }
         forwardMeals(request, response);
     }
@@ -69,5 +64,9 @@ public class MealServlet extends HttpServlet {
     private void forwardMeals (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setAttribute("meals", MealsUtil.getListWithExceeded(mealDao.getAll(), 2000));
         request.getRequestDispatcher("/meals.jsp").forward(request, response);
+    }
+
+    private int getId(HttpServletRequest request){
+        return Integer.parseInt(request.getParameter("id"));
     }
 }
