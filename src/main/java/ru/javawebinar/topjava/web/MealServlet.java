@@ -12,12 +12,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 public class MealServlet extends HttpServlet {
 
     private static final Logger log = LoggerFactory.getLogger(MealServlet.class);
-    private final MealDao mealDao = new MealDaoVirtual();
+    private MealDao mealDao;
+
+    @Override
+    public void init() throws ServletException {
+        mealDao = new MealDaoVirtual();
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -33,10 +39,7 @@ public class MealServlet extends HttpServlet {
         switch (action) {
             case "add":
                 try {
-                    int calories = Integer.parseInt(request.getParameter("calories"));
-                    LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("dateTime"));
-                    String description = request.getParameter("description");
-                    mealDao.create(new Meal(MealDao.countId.incrementAndGet(), dateTime, description, calories));
+                    mealDao.create(getMeal(request));
                 } catch (Exception e) {
                     log.debug("Incorrect data from add form");
                 }
@@ -49,10 +52,8 @@ public class MealServlet extends HttpServlet {
                 break;
             case "update":
                 try {
-                    LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("dateTime"));
-                    String description = request.getParameter("description");
-                    int calories = Integer.parseInt(request.getParameter("calories"));
-                    Meal meal = new Meal (getId(request), dateTime, description, calories);
+                    Meal meal = getMeal(request);
+                    meal.setId(getId(request));
                     mealDao.update(meal);
                 } catch (Exception e) {
                     log.debug("Incorrect data from update form");
@@ -63,10 +64,19 @@ public class MealServlet extends HttpServlet {
 
     private void forwardMeals (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setAttribute("meals", MealsUtil.getListWithExceeded(mealDao.getAll(), 2000));
+        request.setAttribute("dateTimeFormatter", DateTimeFormatter.ofPattern("dd.MM.yyyy, hh:mm"));
         request.getRequestDispatcher("/meals.jsp").forward(request, response);
     }
 
     private int getId(HttpServletRequest request){
         return Integer.parseInt(request.getParameter("id"));
     }
+
+    private Meal getMeal(HttpServletRequest request) {
+        int calories = Integer.parseInt(request.getParameter("calories"));
+        LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("dateTime"));
+        String description = request.getParameter("description");
+        return new Meal(dateTime, description, calories);
+    }
+
 }

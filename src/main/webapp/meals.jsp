@@ -63,12 +63,11 @@
 <body>
 <h3><a href="index.html">Home</a></h3>
 <section>
-    <jsp:useBean id="meals" scope="request" type="java.util.List"/>
     <table class="list" align="left" width="60%">
         <tr>
             <th width=5% height="30px">ID</th>
             <th width=10%>Еда</th>
-            <th width=25%>Дата</th>
+            <th width=25%>Дата/Время</th>
             <th width=10%>Ккал</th>
             <th width=5%>Изменить</th>
             <th width=5%>Удалить</th>
@@ -78,7 +77,7 @@
             <tr style="${color}">
                 <td align="center">${meal.getId()}</td>
                 <td align="center">${meal.getDescription()}</td>
-                <td align="center">${meal.getDateTime().toString().substring(0, 10)} ${meal.getDateTime().toString().substring(11)}</td>
+                <td align="center">${meal.getDateTime().format(dateTimeFormatter)}</td>
                 <td align="center">${meal.getCalories()}</td>
                 <form method="post">
                     <input type="hidden" name="action" value="readyUpdate">
