@@ -55,8 +55,10 @@ public class MealDaoVirtual implements MealDao {
 
     @Override
     public List<Meal> getAll() {
+        List<Meal> resultList = new ArrayList<>(MEALS.values());
+        Collections.sort(resultList);
         log.info("Get list of meals");
-        return new ArrayList<>(MEALS.values());
+        return resultList;
     }
 
 

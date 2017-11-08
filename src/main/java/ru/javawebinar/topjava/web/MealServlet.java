@@ -11,7 +11,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 
@@ -28,18 +30,26 @@ public class MealServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         log.debug("redirect to meals");
+        setDefaultMeal(request);
         forwardMeals(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
+        setDefaultMeal(request);
         String action = request.getParameter("action");
-
         switch (action) {
-            case "add":
+            case "add/update":
                 try {
-                    mealDao.create(getMeal(request));
+                    int id = getId(request);
+                    Meal meal = getMeal(request);
+                    if (id == 0) {
+                        mealDao.create(meal);
+                    } else {
+                        meal.setId(id);
+                        mealDao.update(meal);
+                    }
                 } catch (Exception e) {
                     log.debug("Incorrect data from add form");
                 }
@@ -49,22 +59,13 @@ public class MealServlet extends HttpServlet {
                 break;
             case "readyUpdate":
                 request.setAttribute("updatingMeal", mealDao.get(getId(request)));
-                break;
-            case "update":
-                try {
-                    Meal meal = getMeal(request);
-                    meal.setId(getId(request));
-                    mealDao.update(meal);
-                } catch (Exception e) {
-                    log.debug("Incorrect data from update form");
-                }
         }
         forwardMeals(request, response);
     }
 
     private void forwardMeals (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setAttribute("meals", MealsUtil.getListWithExceeded(mealDao.getAll(), 2000));
-        request.setAttribute("dateTimeFormatter", DateTimeFormatter.ofPattern("dd.MM.yyyy, hh:mm"));
+        request.setAttribute("dateTimeFormatter", DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm"));
         request.getRequestDispatcher("/meals.jsp").forward(request, response);
     }
 
@@ -77,6 +78,11 @@ public class MealServlet extends HttpServlet {
         LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("dateTime"));
         String description = request.getParameter("description");
         return new Meal(dateTime, description, calories);
+    }
+
+    private void setDefaultMeal(HttpServletRequest request) {
+        request.setAttribute("updatingMeal", new Meal(LocalDateTime.of(LocalDate.now(),
+                LocalTime.of(LocalTime.now().getHour(), LocalTime.now().getMinute())), "", 0));
     }
 
 }

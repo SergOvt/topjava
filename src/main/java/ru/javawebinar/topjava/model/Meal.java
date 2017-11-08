@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-public class Meal {
+public class Meal implements Comparable<Meal> {
 
     private LocalDateTime dateTime;
     private String description;
@@ -58,6 +58,10 @@ public class Meal {
         this.id = id;
     }
 
+    @Override
+    public int compareTo(Meal meal) {
+        return id - meal.id;
+    }
 
     @Override
     public String toString() {
@@ -68,4 +72,5 @@ public class Meal {
                 ", id=" + id +
                 '}';
     }
+
 }

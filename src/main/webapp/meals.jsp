@@ -105,39 +105,21 @@
             <th width=30%>Дата/Время</th>
             <th width=10%>Ккал</th>
         </tr>
-        <c:choose>
-            <c:when test="${updatingMeal == null}">
-                <form method="post">
-                    <input type="hidden" name="action" value="add">
-                    <tr>
-                        <td><input type="text" name="description"></td>
-                        <td><input type="datetime-local" name="dateTime"></td>
-                        <td><input type="number" name="calories"></td>
-                    </tr>
-                    <tr>
-                        <td colspan="3" align="center" style="padding: 15px 0 0 0">
-                            <button type="submit" style="font-size: 16px; width: 100px">Add</button>
-                        </td>
-                    </tr>
-                </form>
-            </c:when>
-            <c:otherwise>
-                <form method="post">
-                    <input type="hidden" name="action" value="update">
-                    <input type="hidden" name="id" value=${updatingMeal.getId()}>
-                    <tr>
-                        <td><input type="text" name="description" value=${updatingMeal.getDescription()}></td>
-                        <td><input type="datetime-local" name="dateTime" value=${updatingMeal.getDateTime()}></td>
-                        <td><input type="number" name="calories" value=${updatingMeal.getCalories()}></td>
-                    </tr>
-                    <tr>
-                        <td colspan="3" align="center" style="padding: 15px 0 0 0">
-                            <button type="submit" style="font-size: 16px; width: 100px">Update</button>
-                        </td>
-                    </tr>
-                </form>
-            </c:otherwise>
-        </c:choose>
+        <form method="post">
+            <input type="hidden" name="action" value="add/update">
+            <input type="hidden" name="id" value=${updatingMeal.getId()}>
+            <tr>
+                <td><input type="text" name="description" value=${updatingMeal.getDescription()}></td>
+                <td><input type="datetime-local" name="dateTime" value=${updatingMeal.getDateTime()}></td>
+                <td><input type="number" name="calories" value=${updatingMeal.getCalories()}></td>
+            </tr>
+            <tr>
+                <td colspan="3" align="center" style="padding: 15px 0 0 0">
+                    <c:set var="nameButton" value="${updatingMeal.getId() == 0 ? \"Add\" : \"Update\"}"/>
+                    <button type="submit" style="font-size: 16px; width: 100px">${nameButton}</button>
+                </td>
+            </tr>
+        </form>
     </table>
 </section>
 </body>
