@@ -3,9 +3,11 @@ package ru.javawebinar.topjava.web.user;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.javawebinar.topjava.model.AbstractNamedEntity;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.service.UserService;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
@@ -19,7 +21,10 @@ public abstract class AbstractUserController {
 
     public List<User> getAll() {
         log.info("getAll");
-        return service.getAll();
+        List<User> users = service.getAll();
+        users.sort((o1, o2) -> o1.getName().equals(o2.getName()) ? o1.getId().compareTo(o2.getId()) :
+                o1.getName().compareTo(o2.getName()));
+        return users;
     }
 
     public User get(int id) {
