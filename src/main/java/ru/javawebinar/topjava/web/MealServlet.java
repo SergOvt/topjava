@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import ru.javawebinar.topjava.AuthorizedUser;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
@@ -48,17 +47,18 @@ public class MealServlet extends HttpServlet {
         Meal meal = new Meal(id.isEmpty() ? null : Integer.valueOf(id),
                 LocalDateTime.parse(request.getParameter("dateTime")),
                 request.getParameter("description"),
-                Integer.valueOf(request.getParameter("calories")), AuthorizedUser.id());
+                Integer.valueOf(request.getParameter("calories")));
 
         log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
-        mealRestController.save(meal);
+        if (meal.isNew()) mealRestController.create(meal);
+        else mealRestController.update(meal, Integer.valueOf(id));
         response.sendRedirect("meals");
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-
+        Meal meal = null;
         switch (action == null ? "all" : action) {
             case "delete":
                 int id = getId(request);
@@ -67,10 +67,12 @@ public class MealServlet extends HttpServlet {
                 response.sendRedirect("meals");
                 break;
             case "create":
+                meal = new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000);
+                request.setAttribute("meal", meal);
+                request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
+                break;
             case "update":
-                final Meal meal = "create".equals(action) ?
-                        new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000, AuthorizedUser.id()) :
-                        mealRestController.get(getId(request));
+                meal = mealRestController.get(getId(request));
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
                 break;

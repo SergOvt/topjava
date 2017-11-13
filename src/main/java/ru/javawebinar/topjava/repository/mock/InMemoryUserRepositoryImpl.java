@@ -1,9 +1,6 @@
 package ru.javawebinar.topjava.repository.mock;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-import ru.javawebinar.topjava.model.AbstractNamedEntity;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
@@ -18,8 +15,6 @@ public class InMemoryUserRepositoryImpl implements UserRepository {
     private Map<Integer, User> repository = new ConcurrentHashMap<>();
     private AtomicInteger counter = new AtomicInteger(0);
 
-    private static final Logger log = LoggerFactory.getLogger(InMemoryUserRepositoryImpl.class);
-
     {
         save(new User("admin", "admin@mail.ru", "admin", Role.ROLE_ADMIN));
         save(new User("user", "user@mail.ru", "user", Role.ROLE_USER));
@@ -27,42 +22,33 @@ public class InMemoryUserRepositoryImpl implements UserRepository {
 
     @Override
     public boolean delete(int id) {
-        User user = repository.remove(id);
-        if (user == null) return false;
-        log.info("delete user {}", user.toString());
-        return true;
+        return repository.remove(id) != null;
     }
 
     @Override
     public User save(User user) {
         if (user.isNew()) user.setId(counter.incrementAndGet());
-        repository.put(user.getId(), user);
-        log.info("save user {}", user.toString());
-        return user;
+        return repository.put(user.getId(), user);
     }
 
     @Override
     public User get(int id) {
-        User user = repository.get(id);
-        if (user != null) log.info("get user %s", user.toString());
-        else log.info("user id {} is not found", id);
-        return user;
+        return repository.get(id);
     }
 
     @Override
     public List<User> getAll() {
-        log.info("get all users");
-        return new ArrayList<>(repository.values());
+        List<User> users = new ArrayList<>(repository.values());
+        users.sort((o1, o2) -> o1.getName().equals(o2.getName()) ? o1.getId().compareTo(o2.getId()) :
+                o1.getName().compareTo(o2.getName()));
+        return users;
     }
 
     @Override
     public User getByEmail(String email) {
-        User user = repository.values()
-                .parallelStream()
-                .filter(u -> u.getEmail().equalsIgnoreCase(email))
+        return repository.values()
+                .stream()
+                .filter(user -> user.getEmail().equalsIgnoreCase(email))
                 .findFirst().orElse(null);
-        if (user != null) log.info("get user by email {}", email);
-        else log.info("email {} is not found" + email);
-        return user;
     }
 }

@@ -29,13 +29,13 @@
                     From date:
                 </td>
                 <td width="10%">
-                    <input type="date" name="fromDate" value="${fromDate}">
+                    <input type="date" name="fromDate" value="${fromDate}" id="1">
                 </td>
                 <td width="7%">
                     From time:
                 </td>
                 <td width="10%">
-                    <input type="time" name="fromTime" value="${fromTime}">
+                    <input type="time" name="fromTime" value="${fromTime}" id="2">
                 </td>
             </tr>
             <tr>
@@ -55,17 +55,10 @@
             <tr>
                 <td colspan="4" height="50px" align="center">
                     <button type="submit" style="font-size: 15px" onclick="clearForm()">Clear</button>
+                    <script type="text/javascript" src="${pageContext.request.contextPath}/WEB-INF/js/clear.js"></script>
                     <button type="submit" style="font-size: 15px">Apply</button>
                 </td>
             </tr>
-            <script>
-                function clearForm() {
-                    filterForm.fromDate.value = null;
-                    filterForm.toDate.value = null;
-                    filterForm.fromTime.value = null;
-                    filterForm.toTime.value = null;
-                }
-            </script>
         </form>
     </table>
     <hr/>

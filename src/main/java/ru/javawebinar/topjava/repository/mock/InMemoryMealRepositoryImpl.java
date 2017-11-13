@@ -1,16 +1,14 @@
 package ru.javawebinar.topjava.repository.mock;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.AuthorizedUser;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.to.MealWithExceed;
-import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Month;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,52 +22,46 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     private Map<Integer, Meal> repository = new ConcurrentHashMap<>();
     private AtomicInteger counter = new AtomicInteger(0);
 
-    private static final Logger log = LoggerFactory.getLogger(InMemoryUserRepositoryImpl.class);
-
-
     {
-        MEALS.forEach(this::save);
+        save(new Meal(LocalDateTime.of(2015, Month.MAY, 30, 10, 0), "Завтрак", 500), 1);
+        save(new Meal(LocalDateTime.of(2015, Month.MAY, 30, 13, 0), "Обед", 1000), 1);
+        save(new Meal(LocalDateTime.of(2015, Month.MAY, 30, 20, 0), "Ужин", 500), 1);
+        save(new Meal(LocalDateTime.of(2015, Month.MAY, 31, 10, 0), "Завтрак", 1000), 1);
+        save(new Meal(LocalDateTime.of(2015, Month.MAY, 31, 13, 0), "Обед", 500), 1);
+        save(new Meal(LocalDateTime.of(2015, Month.MAY, 31, 20, 0), "Ужин", 510), 1);
     }
 
     @Override
-    public Meal save(Meal meal) {
-        if (meal == null) return null;
-        if (AuthorizedUser.id() != meal.getUserId()) throw new NotFoundException("user id " + AuthorizedUser.id() + " is incorrect");
+    public Meal save(Meal meal, int userId) {
         if (meal.isNew()) meal.setId(counter.incrementAndGet());
-        repository.put(meal.getId(), meal);
-        log.info("save meal {} by user id {}", meal.toString(), meal.getUserId());
-        return meal;
+        else if (userId != repository.get(meal.getId()).getUserId()) return null;
+        meal.setUserId(userId);
+        return repository.put(meal.getId(), meal);
     }
 
     @Override
-    public boolean delete(int id) {
-        Meal meal = repository.remove(id);
-        if (meal == null) return false;
-        if (AuthorizedUser.id() != meal.getUserId()) throw new NotFoundException("user id " + AuthorizedUser.id() + " is incorrect");
-        log.info("delete meal {} by user id {}", meal.toString(), meal.getUserId());
-        return true;
+    public boolean delete(int id, int userId) {
+        return repository.get(id) != null && userId == repository.get(id).getUserId() && repository.remove(id) != null;
     }
 
     @Override
-    public Meal get(int id) {
+    public Meal get(int id, int userId) {
         Meal meal = repository.get(id);
-        if (meal == null) return null;
-        if (AuthorizedUser.id() != meal.getUserId()) throw new NotFoundException("user id " + AuthorizedUser.id() + " is incorrect");
-        log.info("get meal {}", meal.toString());
-        return meal;
+        return meal != null && userId == meal.getUserId() ? meal : null;
     }
 
     @Override
-    public List<MealWithExceed> getAll(LocalDate fromDate, LocalDate toDate, LocalTime fromTime, LocalTime toTime) {
-        log.info("get all filtered meals by user id {}", AuthorizedUser.id());
+    public List<Meal> getAll(int userId) {
         List<Meal> meals =  repository.values().stream()
-                .filter(meal -> meal.getUserId() == AuthorizedUser.id())
+                .filter(meal -> meal.getUserId() == userId)
                 .collect(Collectors.toList());
+        meals.sort((o1, o2) -> o2.getDateTime().compareTo(o1.getDateTime()));
+        return meals;
+    }
 
-        List<MealWithExceed> mealsWithExceed = getFilteredWithExceeded(meals, fromDate, toDate, fromTime, toTime,
-                AuthorizedUser.getCaloriesPerDay());
-        mealsWithExceed.sort((o1, o2) -> o2.getDateTime().compareTo(o1.getDateTime()));
-        return  mealsWithExceed;
+    @Override
+    public List<Meal> getFilteredAll(LocalDate fromDate, LocalDate toDate, LocalTime fromTime, LocalTime toTime, int userId) {
+        return getFiltered(getAll(userId), fromDate, toDate, fromTime, toTime);
     }
 
 }

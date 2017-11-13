@@ -1,5 +1,7 @@
 package ru.javawebinar.topjava.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.javawebinar.topjava.model.Meal;
@@ -16,6 +18,7 @@ import static ru.javawebinar.topjava.util.ValidationUtil.*;
 public class MealServiceImpl implements MealService {
 
     private MealRepository repository;
+    private static final Logger log = LoggerFactory.getLogger(MealServiceImpl.class);
 
     @Autowired
     public MealServiceImpl(MealRepository repository) {
@@ -23,23 +26,41 @@ public class MealServiceImpl implements MealService {
     }
 
     @Override
-    public Meal save(Meal meal) {
-        return checkNotFoundWithId(repository.save(meal), meal.getId());
+    public Meal create(Meal meal, int userId) {
+        log.info("save meal {} by user id {}", meal.toString(), userId);
+        return repository.save(meal, userId);
     }
 
     @Override
-    public void delete(int id) {
-        checkNotFoundWithId(repository.delete(id), id);
+    public void update(Meal meal, int userId) {
+        log.info("save meal {} by user id {}", meal.toString(), userId);
+        repository.save(meal, userId);
     }
 
     @Override
-    public Meal get(int id) {
-        return checkNotFoundWithId(repository.get(id), id);
+    public void delete(int id, int userId) {
+        log.info("delete meal id {}", id);
+        checkNotFoundWithId(repository.delete(id, userId), id);
     }
 
     @Override
-    public List<MealWithExceed> getAll(LocalDate fromDate, LocalDate toDate, LocalTime fromTime, LocalTime toTime) {
-        return repository.getAll(fromDate, toDate, fromTime, toTime);
+    public Meal get(int id, int userId) {
+        log.info("get meal id {}", id);
+        return checkNotFoundWithId(repository.get(id, userId), id);
     }
+
+    @Override
+    public List<Meal> getAll(int userId) {
+        log.info("get all meals by user id {}", userId);
+        return repository.getAll(userId);
+    }
+
+    @Override
+    public List<Meal> getFilteredAll(LocalDate fromDate, LocalDate toDate, LocalTime fromTime, LocalTime toTime, int userId) {
+        log.info("get all filtered meals by user id {}", userId);
+        return repository.getFilteredAll(fromDate, toDate, fromTime, toTime, userId);
+    }
+
+
 
 }

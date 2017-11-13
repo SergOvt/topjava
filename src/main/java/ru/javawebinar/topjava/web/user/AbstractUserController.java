@@ -21,10 +21,7 @@ public abstract class AbstractUserController {
 
     public List<User> getAll() {
         log.info("getAll");
-        List<User> users = service.getAll();
-        users.sort((o1, o2) -> o1.getName().equals(o2.getName()) ? o1.getId().compareTo(o2.getId()) :
-                o1.getName().compareTo(o2.getName()));
-        return users;
+        return service.getAll();
     }
 
     public User get(int id) {
