@@ -1,6 +1,5 @@
 package ru.javawebinar.topjava.util;
 
-import ru.javawebinar.topjava.AuthorizedUser;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.to.MealWithExceed;
 
@@ -10,7 +9,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -18,8 +16,11 @@ public class MealsUtil {
 
     public static final int DEFAULT_CALORIES_PER_DAY = 2000;
 
-
     public static List<MealWithExceed> getWithExceeded(Collection<Meal> meals, int caloriesPerDay) {
+        return getFilteredByTimeWithExceeded(meals, LocalTime.MIN, LocalTime.MAX, caloriesPerDay);
+    }
+
+    public static List<MealWithExceed> getFilteredByTimeWithExceeded(Collection<Meal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
 
         Map<LocalDate, Integer> caloriesSumByDate = meals.stream()
                 .collect(
@@ -27,7 +28,11 @@ public class MealsUtil {
 //                      Collectors.toMap(Meal::getDate, Meal::getCalories, Integer::sum)
                 );
 
+        LocalTime fromTime = startTime == null ? LocalTime.MIN : startTime;
+        LocalTime toTime = endTime == null ? LocalTime.MAX : endTime;
+
         return  meals.stream()
+                .filter(meal -> DateTimeUtil.isBetween(meal.getTime(), fromTime, toTime))
                 .map(meal -> createWithExceed(meal, caloriesSumByDate.get(meal.getDate()) > caloriesPerDay))
                 .collect(toList());
     }
@@ -36,17 +41,14 @@ public class MealsUtil {
         return new MealWithExceed(meal.getId(), meal.getDateTime(), meal.getDescription(), meal.getCalories(), exceeded);
     }
 
-    public static List<Meal> getFiltered (Collection<Meal> meals, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+
+    public static List<Meal> getFilteredByDate (Collection<Meal> meals, LocalDate startDate, LocalDate endDate) {
         LocalDate fromDate = startDate == null ? LocalDate.MIN : startDate;
         LocalDate toDate = endDate == null ? LocalDate.MAX : endDate;
-        LocalTime fromTime = startTime == null ? LocalTime.MIN : startTime;
-        LocalTime toTime = endTime == null ? LocalTime.MAX : endTime;
 
         return meals.stream()
                 .filter(meal -> DateTimeUtil.isBetween(meal.getDate(), fromDate, toDate))
-                .filter(meal -> DateTimeUtil.isBetween(meal.getTime(), fromTime, toTime))
                 .collect(Collectors.toList());
-
     }
 
 /*

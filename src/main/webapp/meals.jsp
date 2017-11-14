@@ -55,7 +55,6 @@
             <tr>
                 <td colspan="4" height="50px" align="center">
                     <button type="submit" style="font-size: 15px" onclick="clearForm()">Clear</button>
-                    <script type="text/javascript" src="${pageContext.request.contextPath}/WEB-INF/js/clear.js"></script>
                     <button type="submit" style="font-size: 15px">Apply</button>
                 </td>
             </tr>
@@ -99,3 +98,13 @@
 </section>
 </body>
 </html>
+
+
+<script type="text/javascript">
+    function clearForm() {
+        filterForm.fromDate.value = null;
+        filterForm.toDate.value = null;
+        filterForm.fromTime.value = null;
+        filterForm.toTime.value = null;
+    }
+</script>
