@@ -29,13 +29,13 @@
                     From date:
                 </td>
                 <td width="10%">
-                    <input type="date" name="fromDate" value="${fromDate}" id="1">
+                    <input type="date" name="fromDate" value="${fromDate}">
                 </td>
                 <td width="7%">
                     From time:
                 </td>
                 <td width="10%">
-                    <input type="time" name="fromTime" value="${fromTime}" id="2">
+                    <input type="time" name="fromTime" value="${fromTime}">
                 </td>
             </tr>
             <tr>

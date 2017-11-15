@@ -42,15 +42,6 @@ public class MealsUtil {
     }
 
 
-    public static List<Meal> getFilteredByDate (Collection<Meal> meals, LocalDate startDate, LocalDate endDate) {
-        LocalDate fromDate = startDate == null ? LocalDate.MIN : startDate;
-        LocalDate toDate = endDate == null ? LocalDate.MAX : endDate;
-
-        return meals.stream()
-                .filter(meal -> DateTimeUtil.isBetween(meal.getDate(), fromDate, toDate))
-                .collect(Collectors.toList());
-    }
-
 /*
     public static List<MealWithExceed> getFilteredWithExceededByCycle(List<Meal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
 
