@@ -1,7 +1,6 @@
 package ru.javawebinar.topjava.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
@@ -17,7 +16,7 @@ public class MealServiceImpl implements MealService {
     private final MealRepository repository;
 
     @Autowired
-    public MealServiceImpl(@Qualifier("jdbcMealRepositoryImpl")MealRepository repository) {
+    public MealServiceImpl(MealRepository repository) {
         this.repository = repository;
     }
 

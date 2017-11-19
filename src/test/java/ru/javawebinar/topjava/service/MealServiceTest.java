@@ -4,7 +4,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
@@ -38,6 +37,7 @@ public class MealServiceTest {
     public void get() throws Exception {
         Meal meal = service.get(MEAL1_ID, USER_ID);
         assertMatch(meal, MEAL1);
+
     }
 
     @Test
@@ -83,11 +83,6 @@ public class MealServiceTest {
         assertMatch(service.getAll(USER_ID), MEAL6, MEAL5, MEAL4, createdMeal, MEAL3, MEAL2, MEAL1);
     }
 
-    /*@Test//(expected = DataAccessException.class)
-    public void createDuplicateId() throws Exception {
-        service.create(new Meal(MEAL1_ID, LocalDateTime.now(), "Duplicate", 0), USER_ID);
-    }*/
-
     @Test(expected = NotFoundException.class)
     public void getNotFound() throws Exception {
         service.get(1, USER_ID);
@@ -119,6 +114,5 @@ public class MealServiceTest {
     public void updateForeign() throws Exception {
         service.update(MEAL1, ADMIN_ID);
     }
-
 
 }
