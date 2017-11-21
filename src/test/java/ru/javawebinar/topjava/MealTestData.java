@@ -1,15 +1,12 @@
 package ru.javawebinar.topjava;
 
 
-import org.assertj.core.groups.Tuple;
 import ru.javawebinar.topjava.model.Meal;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -36,17 +33,14 @@ public class MealTestData {
     public static final LocalTime TIME_END = LocalTime.of(19, 0);
 
     public static void assertMatch(Meal actual, Meal expected) {
-        assertThat(actual).extracting("id", "dateTime", "description", "calories")
-                .contains(expected.getId(), expected.getDateTime(), expected.getDescription(), expected.getCalories());
+        assertThat(actual).isEqualToComparingFieldByField(expected);
     }
 
     public static void assertMatch(Iterable<Meal> actual, Meal... expected) {
         assertMatch(actual, Arrays.asList(expected));
     }
 
-    public static void assertMatch(Iterable<Meal> actual, List<Meal> expected) {
-        assertThat(actual).extracting("id", "dateTime", "description", "calories")
-                .contains(expected.stream().map(meal -> tuple(meal.getId(), meal.getDateTime(),
-                        meal.getDescription(), meal.getCalories())).toArray(Tuple[]::new));
+    public static void assertMatch(Iterable<Meal> actual, Iterable<Meal> expected) {
+        assertThat(tuple(actual)).isEqualToComparingFieldByField(tuple(expected));
     }
 }
