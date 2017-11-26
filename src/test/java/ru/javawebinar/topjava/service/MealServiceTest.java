@@ -4,8 +4,9 @@ import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.ExternalResource;
+import org.junit.rules.Stopwatch;
 import org.junit.rules.TestName;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,6 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,27 +56,26 @@ public class MealServiceTest {
     @Rule
     public TestName name = new TestName();
 
+
     @Rule
-    public ExternalResource timeResource = new ExternalResource() {
-        private Date timer;
-
+    public Stopwatch stopwatch = new Stopwatch() {
         @Override
-        protected void before() throws Throwable {
-            timer = new Date();
-        }
-
-        @Override
-        protected void after() {
-            long time = new Date().getTime() - timer.getTime();
-            String testName = name.getMethodName();
-            log.debug("{} - {}мс", testName, time);
-            timeResults.put(testName, (int)time);
+        protected void finished(long nanos, Description description) {
+            System.out.println("\nTEST FINISHED");
+            System.out.println("-----------------------------------------------------\n");
+            int msec = (int)(nanos/1000000);
+            log.debug("{} finished {}ms", description.getMethodName(), msec);
+            System.out.println("\n-----------------------------------------------------\n");
+            timeResults.put(description.getMethodName(), msec);
         }
     };
 
     @AfterClass
     public static void printResults() {
-        timeResults.forEach((k, v) -> System.out.println(k + " lasted " + v + " ms"));
+        System.out.println("\nALL TESTS FINISHED");
+        System.out.println("-----------------------------------------------------\n");
+        timeResults.forEach((k, v) -> System.out.println(k + " finised " + v + " ms"));
+        System.out.println("\n-----------------------------------------------------\n");
     }
 
     @Test
