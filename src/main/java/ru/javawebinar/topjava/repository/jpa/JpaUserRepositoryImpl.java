@@ -7,6 +7,7 @@ import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.List;
 
@@ -39,7 +40,15 @@ public class JpaUserRepositoryImpl implements UserRepository {
 
     @Override
     public User get(int id) {
-        return em.find(User.class, id);
+        //return em.find(User.class, id);
+        try {
+            User user = em.createQuery("SELECT u FROM User u LEFT JOIN FETCH u.meals WHERE u.id=:id", User.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+            return user;
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Override
