@@ -55,8 +55,10 @@
               p:password="${database.password}"/>
     </beans>
 
+
     <beans profile="postgres">
         <context:property-placeholder location="classpath:db/postgres.properties" system-properties-mode="OVERRIDE"/>
+
         <bean id="dataSource"
               class="org.apache.tomcat.jdbc.pool.DataSource"
               p:driverClassName="org.postgresql.Driver"
@@ -66,13 +68,9 @@
     </beans>
 
 
-    <beans profile="mock">
-        <context:component-scan base-package="ru.javawebinar.topjava.**.repository.mock"/>
-    </beans>
-
-
     <beans profile="jdbc">
         <context:component-scan base-package="ru.javawebinar.**.repository.jdbc"/>
+
         <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
             <constructor-arg ref="dataSource"/>
         </bean>

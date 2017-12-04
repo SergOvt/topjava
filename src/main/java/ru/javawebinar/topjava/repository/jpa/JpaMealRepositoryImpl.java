@@ -45,18 +45,8 @@ public class JpaMealRepositoryImpl implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        /*Meal meal = em.find(Meal.class, id);
-        return meal != null && meal.getUser().getId() == userId ? meal : null;*/
-        try {
-            Meal meal = em.createQuery("SELECT m FROM Meal m INNER JOIN FETCH m.user u WHERE m.id=:id AND u.id=:userId", Meal.class)
-                    .setParameter("id", id)
-                    .setParameter("userId", userId)
-                    .getSingleResult();
-            return meal;
-        } catch (NoResultException e) {
-            return null;
-        }
-
+        Meal meal = em.find(Meal.class, id);
+        return meal != null && meal.getUser().getId() == userId ? meal : null;
     }
 
     @Override

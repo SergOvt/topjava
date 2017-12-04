@@ -21,10 +21,10 @@ public class DataJpaMealRepositoryImpl implements MealRepository {
     @Override
     @Transactional
     public Meal save(Meal meal, int userId) {
-        User user = crudUserRepository.findById(userId).orElse(null);
-        if (user == null || (!meal.isNew() && get(meal.getId(), userId) == null)) {
+        if (!meal.isNew() && get(meal.getId(), userId) == null) {
             return null;
         }
+        User user = crudUserRepository.getOne(userId);
         meal.setUser(user);
         return crudRepository.save(meal);
     }
@@ -36,17 +36,21 @@ public class DataJpaMealRepositoryImpl implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        List<Meal> result = crudRepository.get(id, userId);
-        return result.size() == 0 ? null : result.get(0);
+        return crudRepository.findByIdAndUserId(id, userId);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return crudRepository.getAll(userId);
+        return crudRepository.findAllByUserIdOrderByDateTimeDesc(userId);
     }
 
     @Override
     public List<Meal> getBetween(LocalDateTime startDate, LocalDateTime endDate, int userId) {
-        return crudRepository.getBetween(startDate, endDate, userId);
+        return crudRepository.findAllByUserIdAndDateTimeBetweenOrderByDateTimeDesc(userId, startDate, endDate);
+    }
+
+    @Override
+    public Meal getWithUser(int id, int userId) {
+        return crudRepository.getWithUser(id, userId);
     }
 }
