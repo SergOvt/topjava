@@ -5,7 +5,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
-import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
@@ -29,9 +28,6 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
 
     @Autowired (required = false)
     protected JpaUtil jpaUtil;
-
-    @Autowired
-    private Environment environment;
 
     @Before
     public void setUp() throws Exception {
@@ -107,7 +103,4 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
         validateRootCause(() -> service.create(new User(null, "User", "mail@yandex.ru", "password", 10001, true, new Date(), Collections.emptySet())), ConstraintViolationException.class);
     }
 
-    private boolean isJpa() {
-        return environment.acceptsProfiles("jpa", "datajpa");
-    }
 }
