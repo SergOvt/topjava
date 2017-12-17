@@ -48,24 +48,27 @@ public class JdbcUserRepositoryImpl implements UserRepository {
         if (user.isNew()) {
             Number newKey = insertUser.executeAndReturnKey(parameterSource);
             user.setId(newKey.intValue());
-            jdbcTemplate.batchUpdate("INSERT INTO user_roles (user_id, role) VALUES (?, ?)", new BatchPreparedStatementSetter() {
-                @Override
-                public void setValues(PreparedStatement ps, int i) throws SQLException {
-                    List<Role> roles = new ArrayList<>(user.getRoles());
-                    ps.setInt(1, user.getId());
-                    ps.setString(2, roles.get(i).name());
-                }
-
-                @Override
-                public int getBatchSize() {
-                    return user.getRoles().size();
-                }
-            });
-        } else if (namedParameterJdbcTemplate.update(
-                "UPDATE users SET name=:name, email=:email, password=:password, " +
-                        "registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id", parameterSource) == 0) {
-            return null;
+        } else {
+            if (namedParameterJdbcTemplate.update(
+                    "UPDATE users SET name=:name, email=:email, password=:password, " +
+                            "registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id", parameterSource) == 0) {
+                return null;
+            }
+            namedParameterJdbcTemplate.update("DELETE FROM user_roles WHERE user_id=:id", parameterSource);
         }
+        jdbcTemplate.batchUpdate("INSERT INTO user_roles (user_id, role) VALUES (?, ?)", new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                List<Role> roles = new ArrayList<>(user.getRoles());
+                ps.setInt(1, user.getId());
+                ps.setString(2, roles.get(i).name());
+            }
+
+            @Override
+            public int getBatchSize() {
+                return user.getRoles().size();
+            }
+        });
         return user;
     }
 
@@ -93,14 +96,7 @@ public class JdbcUserRepositoryImpl implements UserRepository {
                     Map<Integer, Set<Role>> allRoles = new HashMap<>();
                     while (rs.next()) {
                         int id = rs.getInt("user_id");
-                        if (allRoles.get(id) == null) {
-                            Set<Role> role = new HashSet<>();
-                            role.add(Role.valueOf(rs.getString("role")));
-                            allRoles.put(id, role);
-                        }
-                        else {
-                            allRoles.get(id).add(Role.valueOf(rs.getString("role")));
-                        }
+                        allRoles.computeIfAbsent(id, k -> new HashSet<>()).add(Role.valueOf(rs.getString("role")));
                     }
                     return allRoles;
                 });
@@ -109,21 +105,20 @@ public class JdbcUserRepositoryImpl implements UserRepository {
     }
 
     private <K> User getWithRoles(String sql, K key) {
-        Map<? extends K, User> users = jdbcTemplate.query(sql,
+        return jdbcTemplate.query(sql,
                 rs -> {
-                    Map<? extends K, User> user = Collections.singletonMap(key, null);
+                    User user = null;
                     if (rs.next()) {
                         Set<Role> roles = new HashSet<>();
                         roles.add(Role.valueOf(rs.getString("role")));
-                        user = Collections.singletonMap(key, new User(rs.getInt("id"), rs.getString("name"), rs.getString("email"),
+                        user = new User(rs.getInt("id"), rs.getString("name"), rs.getString("email"),
                                 rs.getString("password"), rs.getInt("calories_per_day"),
-                                rs.getBoolean("enabled"), rs.getTimestamp("registered"), roles));
+                                rs.getBoolean("enabled"), rs.getTimestamp("registered"), roles);
                     }
                     while(rs.next()) {
-                        user.get(key).getRoles().add(Role.valueOf(rs.getString("role")));
+                        user.getRoles().add(Role.valueOf(rs.getString("role")));
                     }
                     return user;
                 }, key);
-        return users.get(key);
     }
 }
