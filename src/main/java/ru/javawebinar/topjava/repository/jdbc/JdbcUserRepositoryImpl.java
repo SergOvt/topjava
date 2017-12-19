@@ -114,9 +114,9 @@ public class JdbcUserRepositoryImpl implements UserRepository {
                         user = new User(rs.getInt("id"), rs.getString("name"), rs.getString("email"),
                                 rs.getString("password"), rs.getInt("calories_per_day"),
                                 rs.getBoolean("enabled"), rs.getTimestamp("registered"), roles);
-                    }
-                    while(rs.next()) {
-                        user.getRoles().add(Role.valueOf(rs.getString("role")));
+                        while(rs.next()) {
+                            user.getRoles().add(Role.valueOf(rs.getString("role")));
+                        }
                     }
                     return user;
                 }, key);

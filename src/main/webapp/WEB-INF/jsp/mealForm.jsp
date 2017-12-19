@@ -10,14 +10,9 @@
 <section>
     <h3><a href="${pageContext.request.contextPath}/"><spring:message code="meal.home"/></a></h3>
     <h2>
-        <c:choose>
-            <c:when test="${meal.id == null}">
-                <spring:message code="meal.create"/>
-            </c:when>
-            <c:otherwise>
-                <spring:message code="meal.edit"/>
-            </c:otherwise>
-        </c:choose>
+        <spring:message code="meal.create" var="create"/>
+        <spring:message code="meal.edit" var="edit"/>
+        ${meal.id == null ? create : edit}
     </h2>
     <hr>
     <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
