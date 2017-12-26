@@ -1,4 +1,4 @@
-package ru.javawebinar.topjava.format;
+package ru.javawebinar.topjava.web.format;
 
 import org.springframework.format.Formatter;
 import org.springframework.stereotype.Component;
