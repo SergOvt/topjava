@@ -1,8 +1,4 @@
 function makeEditable() {
-    $(".delete").click(function () {
-        deleteRow($(this).attr("id"));
-    });
-
     $("#detailsForm").submit(function () {
         save();
         return false;
@@ -32,10 +28,8 @@ function deleteRow(id) {
     });
 }
 
-function updateTable() {
-    $.get(ajaxUrl, function (data) {
-        datatableApi.clear().rows.add(data).draw();
-    });
+function updateTableWithData(data) {
+    datatableApi.clear().rows.add(data).draw();
 }
 
 function save() {
@@ -50,6 +44,7 @@ function save() {
             successNoty("Saved");
         }
     });
+    return false;
 }
 
 var failedNote;

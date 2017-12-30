@@ -1,43 +1,33 @@
-var ajaxUrl = "ajax/admin/users/";
+var ajaxUrl = "ajax/profile/meals/";
 var datatableApi;
 
 function updateTable() {
-    $.get(ajaxUrl, updateTableWithData);
-}
-
-function enable(chkbox, id) {
-    var enabled = chkbox.is(':checked');
     $.ajax({
-        url: ajaxUrl + id,
         type: "POST",
-        data: "enabled=" + enabled,
-        success: function () {
-            chkbox.closest("tr").toggleClass("disabled");
-            successNoty(enabled ? "User is enabled" : "User is disabled");
-        }
+        url: ajaxUrl + "filter",
+        data: $("#filter").serialize(),
+        success: updateTableWithData
     });
 }
 
-// $(document).ready(function () {
+function clearFilter() {
+    $("#filter")[0].reset();
+    $.get(ajaxUrl, updateTable);
+}
+
 $(function () {
     datatableApi = $("#datatable").DataTable({
         "paging": false,
         "info": true,
         "columns": [
             {
-                "data": "name"
+                "data": "dateTime"
             },
             {
-                "data": "email"
+                "data": "description"
             },
             {
-                "data": "roles"
-            },
-            {
-                "data": "enabled"
-            },
-            {
-                "data": "registered"
+                "data": "calories"
             },
             {
                 "defaultContent": "Edit",
