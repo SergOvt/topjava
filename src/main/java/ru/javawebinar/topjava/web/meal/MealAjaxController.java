@@ -36,7 +36,7 @@ public class MealAjaxController extends AbstractMealController {
         if (meal.isNew()) super.create(meal);
     }
 
-    @PostMapping(value = "/filter")
+    @PostMapping(value = "/filter", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<MealWithExceed> getBetween(
             @RequestParam("startDate") LocalDate startDate,
             @RequestParam("startTime") LocalTime startTime,
