@@ -11,7 +11,8 @@ import ru.javawebinar.topjava.util.UserUtil;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.StringJoiner;
+
+import static ru.javawebinar.topjava.util.ErrorHandler.checkValidErrors;
 
 @RestController
 @RequestMapping("/ajax/admin/users")
@@ -37,24 +38,14 @@ public class AdminAjaxController extends AbstractUserController {
 
     @PostMapping
     public ResponseEntity<String> createOrUpdate(@Valid UserTo userTo, BindingResult result) {
-        if (result.hasErrors()) {
-            StringJoiner joiner = new StringJoiner("<br>");
-            result.getFieldErrors().forEach(
-                    fe -> {
-                        String msg = fe.getDefaultMessage();
-                        if (!msg.startsWith(fe.getField())) {
-                            msg = fe.getField() + ' ' + msg;
-                        }
-                        joiner.add(msg);
-                    });
-            return new ResponseEntity<>(joiner.toString(), HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-        if (userTo.isNew()) {
-            super.create(UserUtil.createNewFromTo(userTo));
-        } else {
-            super.update(userTo, userTo.getId());
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
+        return checkValidErrors(() -> {
+            if (userTo.isNew()) {
+                super.create(UserUtil.createNewFromTo(userTo));
+            } else {
+                super.update(userTo, userTo.getId());
+            }
+            return new ResponseEntity<>(HttpStatus.OK);
+        }, result);
     }
 
     @Override
