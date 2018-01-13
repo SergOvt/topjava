@@ -21,6 +21,9 @@ function updateRow(id) {
     $.get(ajaxUrl + id, function (data) {
         $.each(data, function (key, value) {
             form.find("input[name='" + key + "']").val(value);
+            if (key === "dateTime") {
+                form.find("input[name=dateTime]").val(value.replace('T', ' ').substr(0, 16));
+            }
         });
         $('#editRow').modal();
     });
@@ -41,6 +44,10 @@ function updateTableByData(data) {
 }
 
 function save() {
+    var calories = form.find("#calories").val();
+    if (calories === "") {
+        form.find("#calories").val(0);
+    }
     $.ajax({
         type: "POST",
         url: ajaxUrl,
@@ -50,6 +57,7 @@ function save() {
         updateTable();
         successNoty("common.saved");
     });
+    form.find("#calories").val(calories);
 }
 
 var failedNote;
