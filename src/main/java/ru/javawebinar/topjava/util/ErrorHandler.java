@@ -12,7 +12,6 @@ public class ErrorHandler {
     }
 
     public static ResponseEntity<String> checkValidErrors (BindingResult result) {
-        if (result.hasErrors()) {
             StringJoiner joiner = new StringJoiner("<br>");
             result.getFieldErrors().forEach(
                     fe -> {
@@ -23,7 +22,5 @@ public class ErrorHandler {
                         joiner.add(msg);
                     });
             return new ResponseEntity<>(joiner.toString(), HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
