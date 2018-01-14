@@ -44,10 +44,6 @@ function updateTableByData(data) {
 }
 
 function save() {
-    var calories = form.find("#calories").val();
-    if (calories === "") {
-        form.find("#calories").val(0);
-    }
     $.ajax({
         type: "POST",
         url: ajaxUrl,
@@ -57,7 +53,6 @@ function save() {
         updateTable();
         successNoty("common.saved");
     });
-    form.find("#calories").val(calories);
 }
 
 var failedNote;
