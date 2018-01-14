@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.web.user;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -37,14 +38,15 @@ public class AdminAjaxController extends AbstractUserController {
 
     @PostMapping
     public ResponseEntity<String> createOrUpdate(@Valid UserTo userTo, BindingResult result) {
-        ResponseEntity<String> resultResponse = checkValidErrors(result);
-        if (resultResponse.getStatusCodeValue() == 422) return resultResponse;
+        if (result.hasErrors()) {
+            return checkValidErrors(result);
+        }
         if (userTo.isNew()) {
             super.create(UserUtil.createNewFromTo(userTo));
         } else {
             super.update(userTo, userTo.getId());
         }
-        return resultResponse;
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
