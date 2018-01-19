@@ -3,16 +3,21 @@ package ru.javawebinar.topjava.web.meal;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.TestUtil;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.util.MealsUtil;
+import ru.javawebinar.topjava.util.exception.ErrorInfo;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
 import java.util.Arrays;
 
+import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -23,6 +28,7 @@ import static ru.javawebinar.topjava.TestUtil.contentJson;
 import static ru.javawebinar.topjava.TestUtil.*;
 import static ru.javawebinar.topjava.UserTestData.*;
 import static ru.javawebinar.topjava.model.AbstractBaseEntity.START_SEQ;
+import static ru.javawebinar.topjava.web.json.JsonUtil.readValue;
 
 public class MealRestControllerTest extends AbstractControllerTest {
 
@@ -151,4 +157,35 @@ public class MealRestControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(ADMIN)))
                 .andExpect(status().isUnprocessableEntity());
     }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    public void testCreateDuplicate() throws Exception {
+        Meal created = getCreated();
+        created.setDateTime(MEAL1.getDateTime());
+        MvcResult result = mockMvc.perform(post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(created))
+                .with(userHttpBasic(USER)))
+                .andExpect(status().isConflict())
+                .andReturn();
+        ErrorInfo returned = readValue(result.getResponse().getContentAsString(), ErrorInfo.class);
+        assertEquals(returned.getDetail(), "Meal with this dateTime already exists");
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    public void testUpdateDuplicate() throws Exception {
+        Meal updated = getUpdated();
+        updated.setDateTime(MEAL2.getDateTime());
+        MvcResult result = mockMvc.perform(put(REST_URL + MEAL1_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(updated))
+                .with(userHttpBasic(USER)))
+                .andExpect(status().isConflict())
+                .andReturn();
+        ErrorInfo returned = readValue(result.getResponse().getContentAsString(), ErrorInfo.class);
+        assertEquals(returned.getDetail(), "Meal with this dateTime already exists");
+    }
+
 }

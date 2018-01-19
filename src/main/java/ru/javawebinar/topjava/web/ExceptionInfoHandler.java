@@ -6,7 +6,6 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,7 +18,6 @@ import ru.javawebinar.topjava.util.exception.ErrorType;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.StringJoiner;
 
 import static ru.javawebinar.topjava.util.ValidationUtil.getErrorResponse;
 
@@ -38,7 +36,17 @@ public class ExceptionInfoHandler {
     @ResponseStatus(value = HttpStatus.CONFLICT)  // 409
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ErrorInfo conflict(HttpServletRequest req, DataIntegrityViolationException e) {
-        return logAndGetErrorInfo(req, e, true, ErrorType.DATA_ERROR);
+        if (e.toString().toLowerCase().contains("users_unique_email_idx")) {
+            String msg = "User with this email already exists";
+            log.warn("{} at request  {}: {}", ErrorType.DATA_ERROR, req.getRequestURL(), msg);
+            return new ErrorInfo(req.getRequestURL(), ErrorType.DATA_ERROR, msg);
+        }
+        if (e.toString().toLowerCase().contains("meals_unique_user_datetime_idx")) {
+            String msg = "Meal with this dateTime already exists";
+            log.warn("{} at request  {}: {}", ErrorType.DATA_ERROR, req.getRequestURL(), msg);
+            return new ErrorInfo(req.getRequestURL(), ErrorType.DATA_ERROR, msg);
+        }
+           return logAndGetErrorInfo(req, e, true, ErrorType.DATA_ERROR);
     }
 
     @ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)
