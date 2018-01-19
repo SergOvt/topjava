@@ -3,9 +3,11 @@ package ru.javawebinar.topjava.util;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import ru.javawebinar.topjava.HasId;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
+import java.util.List;
 import java.util.StringJoiner;
 
 public class ValidationUtil {
@@ -58,9 +60,9 @@ public class ValidationUtil {
         return result;
     }
 
-    public static ResponseEntity<String> getErrorResponse(BindingResult result) {
+    public static String getErrorResponse(List<FieldError> errors) {
         StringJoiner joiner = new StringJoiner("<br>");
-        result.getFieldErrors().forEach(
+        errors.forEach(
                 fe -> {
                     String msg = fe.getDefaultMessage();
                     if (!msg.startsWith(fe.getField())) {
@@ -68,6 +70,6 @@ public class ValidationUtil {
                     }
                     joiner.add(msg);
                 });
-        return new ResponseEntity<>(joiner.toString(), HttpStatus.UNPROCESSABLE_ENTITY);
+        return joiner.toString();
     }
 }
