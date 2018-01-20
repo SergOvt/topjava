@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.LocaleResolver;
 import ru.javawebinar.topjava.util.ValidationUtil;
 import ru.javawebinar.topjava.util.exception.ErrorInfo;
 import ru.javawebinar.topjava.util.exception.ErrorType;
@@ -32,12 +32,10 @@ public class ExceptionInfoHandler {
 
     private static Logger log = LoggerFactory.getLogger(ExceptionInfoHandler.class);
 
-    private final LocaleResolver localeResolver;
     private final MessageSource messageSource;
 
     @Autowired
-    public ExceptionInfoHandler(LocaleResolver localeResolver, MessageSource messageSource) {
-        this.localeResolver = localeResolver;
+    public ExceptionInfoHandler(MessageSource messageSource) {
         this.messageSource = messageSource;
     }
 
@@ -103,7 +101,7 @@ public class ExceptionInfoHandler {
     }
 
     private ErrorInfo logAndGetDuplicateErrorInfo(HttpServletRequest req, String code) {
-        String msg = messageSource.getMessage(code, new Object[]{}, localeResolver.resolveLocale(req));
+        String msg = messageSource.getMessage(code, new Object[]{}, LocaleContextHolder.getLocale());
         log.warn("{} at request  {}: {}", ErrorType.DATA_ERROR, req.getRequestURL(), msg);
         return new ErrorInfo(req.getRequestURL(), ErrorType.DATA_ERROR, msg);
     }
