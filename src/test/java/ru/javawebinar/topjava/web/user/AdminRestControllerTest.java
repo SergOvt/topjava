@@ -160,7 +160,8 @@ public class AdminRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isConflict())
                 .andReturn();
         ErrorInfo returned = readValue(result.getResponse().getContentAsString(), ErrorInfo.class);
-        assertEquals(returned.getDetail(), "User with this email already exists");
+        assertEquals(returned.getDetail(), webApplicationContext.getMessage("user.duplicate", new Object[]{}, result.getResponse().getLocale()));
+
     }
 
     @Test
@@ -174,6 +175,6 @@ public class AdminRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isConflict())
                 .andReturn();
         ErrorInfo returned = readValue(result.getResponse().getContentAsString(), ErrorInfo.class);
-        assertEquals(returned.getDetail(), "User with this email already exists");
+        assertEquals(returned.getDetail(), webApplicationContext.getMessage("user.duplicate", new Object[]{}, result.getResponse().getLocale()));
     }
 }

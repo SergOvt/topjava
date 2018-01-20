@@ -170,7 +170,7 @@ public class MealRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isConflict())
                 .andReturn();
         ErrorInfo returned = readValue(result.getResponse().getContentAsString(), ErrorInfo.class);
-        assertEquals(returned.getDetail(), "Meal with this dateTime already exists");
+        assertEquals(returned.getDetail(), webApplicationContext.getMessage("meal.duplicate", new Object[]{}, result.getResponse().getLocale()));
     }
 
     @Test
@@ -185,7 +185,8 @@ public class MealRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isConflict())
                 .andReturn();
         ErrorInfo returned = readValue(result.getResponse().getContentAsString(), ErrorInfo.class);
-        assertEquals(returned.getDetail(), "Meal with this dateTime already exists");
+        assertEquals(returned.getDetail(), webApplicationContext.getMessage("meal.duplicate", new Object[]{}, result.getResponse().getLocale()));
+
     }
 
 }
